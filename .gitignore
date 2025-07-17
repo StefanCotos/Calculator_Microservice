@@ -1,0 +1,26 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment files
+.env
+*.env
+
+# Virtual environment
+venv/
+
+# Database files
+*.db
+
+# IDE specific files
+.vscode/
+*.code-workspace
+
+# Miscellaneous
+*.log
+*.bak
+*.swp
+.DS_Store
+Thumbs.db

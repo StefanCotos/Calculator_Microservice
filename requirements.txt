@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+aiofiles
+sqlalchemy
+sqlalchemy[asyncio]
+aiosqlite
+flake8
+autopep8
