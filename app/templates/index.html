@@ -9,6 +9,20 @@
 
 <body>
     <div class="layout-container">
+
+        {% if user %}
+        <p style="text-align:right; color:white; width: 100%;">
+            Salut, {{ user.username }} |
+            <a href="/logout" style="color: #f57c00;">Logout</a>
+        </p>
+        {% else %}
+        <p style="text-align:right; width: 100%;">
+            <a href="/login" style="color: #0bf;">Login</a> /
+            <a href="/register" style="color: #0bf;">Înregistrare</a>
+        </p>
+        {% endif %}
+
+
         <div class="wrapper">
             <!-- Calculator -->
             <div class="calculator">

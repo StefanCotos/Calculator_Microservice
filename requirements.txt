@@ -8,3 +8,5 @@ sqlalchemy[asyncio]
 aiosqlite
 flake8
 autopep8
+passlib[bcrypt]
+python-dotenv

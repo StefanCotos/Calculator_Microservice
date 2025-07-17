@@ -10,44 +10,57 @@ from sqlalchemy import select
 from fastapi.responses import StreamingResponse
 import csv
 import io
+from app.auth.utils import get_current_user
+from app.models.user import User
+
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/", response_class=HTMLResponse)
-async def calculator_page(request: Request):
-    return templates.TemplateResponse("index.html",
-                                      {"request": request,
-                                       "result": None})
+async def calculator_page(request: Request, user: User = Depends(get_current_user)):
+    return templates.TemplateResponse("index.html", {"request": request, "user": user})
 
 
 @router.post("/", response_class=HTMLResponse)
 async def calculator_eval(
     request: Request,
     expression: str = Form(...),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user)
 ):
     result = None
     try:
-        result = str(eval(expression, {"__builtins__": None},
-                          {"math": math}))
+        result = str(eval(expression, {"__builtins__": None}, {
+                     "math": __import__('math')}))
     except Exception:
         result = "Eroare de calcul"
 
-    await db.merge(RequestRecord(expression=expression, result=result))
+    record = RequestRecord(expression=expression, result=result, user=user)
+    db.add(record)
     await db.commit()
 
-    return templates.TemplateResponse("index.html",
-                                      {"request": request,
-                                       "result": result})
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "result": result,
+        "user": user
+    })
 
 
 @router.get("/history", response_class=JSONResponse)
-async def get_history(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(RequestRecord).order_by(RequestRecord.timestamp.desc()).limit(15)
-    )
+async def get_history(
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    query = select(RequestRecord).order_by(RequestRecord.timestamp.desc()).limit(10)
+
+    if user:
+        query = query.where(RequestRecord.user_id == user.id)
+    else:
+        query = query.where(RequestRecord.user_id == None)
+
+    result = await db.execute(query)
     records = result.scalars().all()
 
     return [

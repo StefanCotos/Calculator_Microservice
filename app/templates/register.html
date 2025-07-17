@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Înregistrare</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="calculator">
+        <h2 class="screen">Înregistrare</h2>
+        <form method="post">
+            <label>Username:</label>
+            <input type="text" name="username" required>
+            <br><br>
+            <label>Parolă:</label>
+            <input type="password" name="password" required>
+            <br><br>
+            <button type="submit">Creează cont</button>
+        </form>
+
+        {% if error %}
+        <p style="color: red;">{{ error }}</p>
+        {% endif %}
+
+        <p style="margin-top: 10px;">
+            Ai deja cont? <a href="/login">Autentifică-te</a>
+        </p>
+    </div>
+</body>
+
+</html>
