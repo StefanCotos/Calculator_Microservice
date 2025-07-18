@@ -8,24 +8,25 @@
 </head>
 
 <body>
+
     <div class="layout-container">
 
-        {% if user %}
-        <p style="text-align:right; color:white; width: 100%;">
-            Salut, {{ user.username }} |
-            <a href="/logout" style="color: #f57c00;">Logout</a>
-        </p>
-        {% else %}
-        <p style="text-align:right; width: 100%;">
-            <a href="/login" style="color: #0bf;">Login</a> /
-            <a href="/register" style="color: #0bf;">Înregistrare</a>
-        </p>
-        {% endif %}
-
-
         <div class="wrapper">
+
             <!-- Calculator -->
             <div class="calculator">
+
+                <div class="auth-bar">
+                    {% if user %}
+                    <span>Salut, {{ user.username }}
+                        <a href="/logout" class="button" type="button">Logout</a>
+                    </span>
+                    {% else %}
+                    <a href="/login" class="button" type="button">Login</a>
+                    <a href="/register" class="button" type="button">Înregistrare</a>
+                    {% endif %}
+                </div>
+
                 <h2 class="screen" id="screen">{{ result or "" }}</h2>
                 <form method="post" id="calc-form">
                     <input type="hidden" name="expression" id="expression">
@@ -62,7 +63,6 @@
                         <button type="button" onclick="callFactorial()">n!</button>
                         <button type="button" onclick="callFibonacci()">fib</button>
                         <button type="button" onclick="callPow()">pow</button>
-
 
                     </div>
                 </form>

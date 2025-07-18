@@ -4,27 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Autentificare</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/auth.css">
 </head>
 
 <body>
-    <div class="calculator">
-        <h2 class="screen">Login</h2>
+    <div class="auth-container">
+        <h2>Login</h2>
         <form method="post">
-            <label>Username:</label>
-            <input type="text" name="username" required>
-            <br><br>
-            <label>Parolă:</label>
-            <input type="password" name="password" required>
-            <br><br>
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Parolă" required>
             <button type="submit">Autentificare</button>
         </form>
-
         {% if error %}
         <p style="color: red;">{{ error }}</p>
         {% endif %}
-
-        <p style="margin-top: 10px;">
+        <p>
             Nu ai cont? <a href="/register">Înregistrează-te</a>
         </p>
     </div>

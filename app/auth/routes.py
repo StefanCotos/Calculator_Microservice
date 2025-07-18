@@ -27,7 +27,9 @@ async def register(
     user = result.scalar_one_or_none()
 
     if user:
-        return templates.TemplateResponse("register.html", {"request": request, "error": "Username deja folosit."})
+        return templates.TemplateResponse("register.html",
+                                          {"request": request,
+                                           "error": "Username deja folosit."})
 
     hashed_pw = bcrypt.hash(password)
     new_user = User(username=username, hashed_password=hashed_pw)
@@ -54,7 +56,9 @@ async def login(
     user = result.scalar_one_or_none()
 
     if not user or not bcrypt.verify(password, user.hashed_password):
-        return templates.TemplateResponse("login.html", {"request": request, "error": "Date invalide."})
+        return templates.TemplateResponse("login.html",
+                                          {"request": request,
+                                           "error": "Date invalide."})
 
     response = RedirectResponse("/", status_code=302)
     response.set_cookie("user_id", str(user.id))

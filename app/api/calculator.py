@@ -4,12 +4,14 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.models.request import RequestRecord
-import math
 from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from fastapi.responses import StreamingResponse
 import csv
 import io
+from app.auth.utils import get_current_user
+from app.models.user import User
+from sqlalchemy import delete
 from app.auth.utils import get_current_user
 from app.models.user import User
 
@@ -58,7 +60,7 @@ async def get_history(
     if user:
         query = query.where(RequestRecord.user_id == user.id)
     else:
-        query = query.where(RequestRecord.user_id == None)
+        query = query.where(RequestRecord.user_id.is_(None))
 
     result = await db.execute(query)
     records = result.scalars().all()
@@ -71,19 +73,34 @@ async def get_history(
 
 
 @router.delete("/history")
-async def delete_history(db: AsyncSession = Depends(get_db)):
-    await db.execute(
-        RequestRecord.__table__.delete()
-    )
+async def delete_history(
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    if user:
+        stmt = delete(RequestRecord).where(RequestRecord.user_id == user.id)
+    else:
+        stmt = delete(RequestRecord).where(RequestRecord.user_id.is_(None))
+
+    await db.execute(stmt)
     await db.commit()
-    return {"message": "Istoric șters cu succes."}
+
+    return {"message": "Istoric șters."}
 
 
 @router.get("/history/export")
-async def export_history(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(
-        select(RequestRecord).order_by(RequestRecord.timestamp.desc())
-    )
+async def export_history(
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    stmt = select(RequestRecord).order_by(RequestRecord.timestamp.desc())
+
+    if user:
+        stmt = stmt.where(RequestRecord.user_id == user.id)
+    else:
+        stmt = stmt.where(RequestRecord.user_id.is_(None))
+
+    result = await db.execute(stmt)
     records = result.scalars().all()
 
     output = io.StringIO()
@@ -91,8 +108,7 @@ async def export_history(db: AsyncSession = Depends(get_db)):
     writer.writerow(["expression", "result", "timestamp"])
 
     for record in records:
-        writer.writerow([record.expression, record.result,
-                        record.timestamp.isoformat()])
+        writer.writerow([record.expression, record.result, record.timestamp.isoformat()])
 
     output.seek(0)
     return StreamingResponse(
