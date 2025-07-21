@@ -12,8 +12,6 @@ import io
 from app.auth.utils import get_current_user
 from app.models.user import User
 from sqlalchemy import delete
-from app.auth.utils import get_current_user
-from app.models.user import User
 
 
 router = APIRouter()
@@ -108,7 +106,9 @@ async def export_history(
     writer.writerow(["expression", "result", "timestamp"])
 
     for record in records:
-        writer.writerow([record.expression, record.result, record.timestamp.isoformat()])
+        writer.writerow([record.expression,
+                         record.result,
+                         record.timestamp.isoformat()])
 
     output.seek(0)
     return StreamingResponse(
