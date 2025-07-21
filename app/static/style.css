@@ -1,14 +1,6 @@
-body.dark-theme {
-    background-image: url("/static/images/background_dark.jpg");
-}
-
-body.light-theme {
-    background-image: url("/static/images/background_light.jpg");
-}
-
 body {
     font-family: Arial, sans-serif;
-    /* background-image: url("/static/images/background_light.jpg"); */
+    background-image: url("/static/images/background_light.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -173,29 +165,4 @@ a.button {
 
 a.button:hover {
     background-color: #0a3690;
-}
-
-
-.theme-toggle {
-    width: 100%;
-    text-align: center;
-    margin-top: 15px;
-    margin-bottom: 15px;
-}
-
-.theme-toggle button {
-    background: transparent;
-    border: 1px solid #666;
-    color: #ccc;
-    font-size: 20px;
-    padding: 4px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.theme-toggle button:hover {
-    background-color: #333;
-    color: white;
-    border-color: white;
 }

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
-<body class="light-theme">
+<body>
 
     <div class="layout-container">
 
@@ -25,9 +25,6 @@
                     <a href="/login" class="button" type="button">Login</a>
                     <a href="/register" class="button" type="button">Înregistrare</a>
                     {% endif %}
-                    <div class="theme-toggle">
-                        <button onclick="toggleTheme()">🌓</button>
-                    </div>
                 </div>
 
                 <h2 class="screen" id="screen">{{ result or "" }}</h2>
