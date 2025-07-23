@@ -16,4 +16,4 @@ class FactorialRequest(BaseModel):
 
 class MathResponse(BaseModel):
     input: dict
-    result: float | int | str  # poate fi și mesaj de eroare în viitor
+    result: float | int | str

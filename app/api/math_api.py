@@ -9,17 +9,20 @@ from app.schemas.math_schema import (
     FibonacciRequest,
     MathResponse
 )
+from app.auth.utils import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 service = MathService()
 
 
 @router.post("/pow", response_model=MathResponse)
-async def power(payload: PowRequest, db: AsyncSession = Depends(get_db)):
+async def power(payload: PowRequest, db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
     result = service.power(payload.x, payload.y)
     expr = f"pow({payload.x}, {payload.y})"
 
-    await db.merge(RequestRecord(expression=expr, result=str(result)))
+    record = RequestRecord(expression=expr, result=str(result), user=user)
+    db.add(record)
     await db.commit()
 
     return {
@@ -29,11 +32,12 @@ async def power(payload: PowRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/fibonacci", response_model=MathResponse)
-async def fibonacci(payload: FibonacciRequest, db: AsyncSession = Depends(get_db)):
+async def fibonacci(payload: FibonacciRequest, db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
     result = service.fibonacci(payload.n)
     expr = f"fibonacci({payload.n})"
 
-    await db.merge(RequestRecord(expression=expr, result=str(result)))
+    record = RequestRecord(expression=expr, result=str(result), user=user)
+    db.add(record)
     await db.commit()
 
     return {
@@ -43,11 +47,12 @@ async def fibonacci(payload: FibonacciRequest, db: AsyncSession = Depends(get_db
 
 
 @router.post("/factorial", response_model=MathResponse)
-async def factorial(payload: FactorialRequest, db: AsyncSession = Depends(get_db)):
+async def factorial(payload: FactorialRequest, db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
     result = service.factorial(payload.n)
     expr = f"factorial({payload.n})"
 
-    await db.merge(RequestRecord(expression=expr, result=str(result)))
+    record = RequestRecord(expression=expr, result=str(result), user=user)
+    db.add(record)
     await db.commit()
 
     return {
