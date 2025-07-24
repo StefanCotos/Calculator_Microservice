@@ -9,6 +9,23 @@ async def get_current_user(
     request: Request,
     db: AsyncSession = Depends(get_db)
 ) -> User | None:
+    """
+    Asynchronously retrieves the current user from the request cookies.
+    This function attempts to extract the 'user_id'
+        from the request's cookies.
+    If a 'user_id' is found, it queries the database
+        for a user with the corresponding ID.
+    If the user exists, it returns the User
+        object; otherwise, it returns None.
+    If no 'user_id' is present in the cookies or
+        an exception occurs during the process,
+    the function returns None.
+    Args:
+        request (Request): The incoming HTTP request containing cookies.
+        db (AsyncSession, optional): The asynchronous database session dependency.
+    Returns:
+        User | None: The User object if found, otherwise None.
+    """
     user_id = request.cookies.get("user_id")
 
     if not user_id:

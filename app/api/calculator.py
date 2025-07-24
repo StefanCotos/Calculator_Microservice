@@ -20,16 +20,49 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/", response_class=HTMLResponse)
 async def calculator_page(request: Request, user: User = Depends(get_current_user)):
+    """
+    Displays the main calculator page.
+    Args:
+        request (Request): The HTTP request object
+            received from the client.
+        user (User, optional): The authenticated user,
+            obtained via the get_current_user dependency.
+    Returns:
+        TemplateResponse: The response containing the "index.html"
+            HTML page and the context with the request and user.
+    """
+
     return templates.TemplateResponse("index.html", {"request": request, "user": user})
 
 
 @router.post("/", response_class=HTMLResponse)
 async def calculator_eval(
+
     request: Request,
     expression: str = Form(...),
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
+    """
+    Evaluates a mathematical expression received from the
+        user and saves the result in the database.
+    Args:
+        request (Request): The current HTTP request object.
+        expression (str): The mathematical expression
+            entered by the user (received via form).
+        db (AsyncSession): The asynchronous session for database interaction.
+        user (User): The currently authenticated user.
+    Returns:
+        TemplateResponse: The HTML response containing the
+            evaluation result and user information.
+    Notes:
+        - The expression is evaluated in a restricted context
+            to prevent execution of dangerous code.
+        - In case of evaluation error, the result will be
+            "Eroare de calcul" (Calculation error).
+        - Each request is recorded in the database along
+            with the result and associated user.
+    """
     result = None
     try:
         result = str(eval(expression, {"__builtins__": None}, {
@@ -50,9 +83,21 @@ async def calculator_eval(
 
 @router.get("/history", response_class=JSONResponse)
 async def get_history(
+
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
+    """
+    Retrieves the last 10 operations performed
+        by the current user.
+    Args:
+        db (AsyncSession): The asynchronous
+            session for database interaction.
+        user (User): The currently authenticated user.
+    Returns:
+        list[dict]: A list of dictionaries containing
+            the expression, result, and timestamp of each operation.
+    """
     query = select(RequestRecord).order_by(RequestRecord.timestamp.desc()).limit(10)
 
     if user:
@@ -72,9 +117,24 @@ async def get_history(
 
 @router.delete("/history")
 async def delete_history(
+
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
+    """
+    Deletes the request history for the authenticated user.
+    This function deletes all records from the RequestRecord
+        table associated with the current user.
+    If there is no authenticated user, records without
+        user association will be deleted.
+    Args:
+        db (AsyncSession): The asynchronous database
+            session, injected via Depends.
+        user (User): The current user, obtained via
+        Depends(get_current_user).
+    Returns:
+        dict: A message confirming the deletion of the history.
+    """
     if user:
         stmt = delete(RequestRecord).where(RequestRecord.user_id == user.id)
     else:
@@ -88,9 +148,26 @@ async def delete_history(
 
 @router.get("/history/export")
 async def export_history(
+
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
+    """
+    Exports the calculation history performed by
+        the current user as a CSV file.
+    Args:
+        db (AsyncSession): The asynchronous database
+            session, injected via dependency.
+        user (User): The currently authenticated user,
+            injected via dependency.
+    Returns:
+        StreamingResponse: An HTTP response that streams
+            the CSV file containing the expressions, results, and
+                timestamps of the calculations performed by the current user.
+    Note:
+        If the user is not authenticated, only records
+            without user association will be exported.
+    """
     stmt = select(RequestRecord).order_by(RequestRecord.timestamp.desc())
 
     if user:
