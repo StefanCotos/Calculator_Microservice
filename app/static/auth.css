@@ -53,3 +53,25 @@ body {
     color: #0bf;
     text-decoration: none;
 }
+
+@media (max-width: 480px) {
+    .auth-container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .auth-container input,
+    .auth-container button {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .auth-container h2 {
+        font-size: 20px;
+    }
+
+    body {
+        padding: 10px;
+        box-sizing: border-box;
+    }
+}
