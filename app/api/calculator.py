@@ -13,6 +13,8 @@ from app.auth.utils import get_current_user
 from app.models.user import User
 from sqlalchemy import delete
 
+from app.logging_config import setup_logger
+logger = setup_logger(__name__)
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -31,6 +33,8 @@ async def calculator_page(request: Request, user: User = Depends(get_current_use
         TemplateResponse: The response containing the "index.html"
             HTML page and the context with the request and user.
     """
+
+    logger.info(f"Rendering calculator page for user: {getattr(user, 'username', 'anonim')}")
 
     return templates.TemplateResponse("index.html", {"request": request, "user": user})
 
@@ -63,6 +67,8 @@ async def calculator_eval(
         - Each request is recorded in the database along
             with the result and associated user.
     """
+
+    logger.info(f"Evaluating expression: '{expression}' for user: {getattr(user, 'username', 'anonim')}")
     result = None
     try:
         result = str(eval(expression, {"__builtins__": None}, {
@@ -73,6 +79,8 @@ async def calculator_eval(
     record = RequestRecord(expression=expression, result=result, user=user)
     db.add(record)
     await db.commit()
+
+    logger.info(f"Expression '{expression}' evaluated with result: '{result}' for user: {getattr(user, 'username', 'anonim')}")
 
     return templates.TemplateResponse("index.html", {
         "request": request,
@@ -98,6 +106,9 @@ async def get_history(
         list[dict]: A list of dictionaries containing
             the expression, result, and timestamp of each operation.
     """
+
+    logger.info(f"Retrieving history for user: {getattr(user, 'username', 'anonim')}")
+
     query = select(RequestRecord).order_by(RequestRecord.timestamp.desc()).limit(10)
 
     if user:
@@ -107,6 +118,8 @@ async def get_history(
 
     result = await db.execute(query)
     records = result.scalars().all()
+
+    logger.info(f"History retrieved for user: {getattr(user, 'username', 'anonim')}")
 
     return [
         {"expression": r.expression, "result": r.result,
@@ -135,6 +148,9 @@ async def delete_history(
     Returns:
         dict: A message confirming the deletion of the history.
     """
+
+    logger.info(f"Deleting history for user: {getattr(user, 'username', 'anonim')}")
+
     if user:
         stmt = delete(RequestRecord).where(RequestRecord.user_id == user.id)
     else:
@@ -142,6 +158,8 @@ async def delete_history(
 
     await db.execute(stmt)
     await db.commit()
+
+    logger.info(f"History deleted for user: {getattr(user, 'username', 'anonim')}")
 
     return {"message": "Istoric șters."}
 
@@ -168,6 +186,9 @@ async def export_history(
         If the user is not authenticated, only records
             without user association will be exported.
     """
+
+    logger.info(f"Exporting history for user: {getattr(user, 'username', 'anonim')}")
+
     stmt = select(RequestRecord).order_by(RequestRecord.timestamp.desc())
 
     if user:
@@ -186,6 +207,8 @@ async def export_history(
         writer.writerow([record.expression,
                          record.result,
                          record.timestamp.isoformat()])
+
+    logger.info(f"History exported for user: {getattr(user, 'username', 'anonim')}")
 
     output.seek(0)
     return StreamingResponse(

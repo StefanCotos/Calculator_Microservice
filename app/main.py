@@ -4,9 +4,15 @@ from app.api import calculator, math_api
 from app.auth import routes
 from app.db.session import init_db
 
+from app.logging_config import setup_logger
+logger = setup_logger(__name__)
+
 
 async def lifespan(app: FastAPI):
+    """Lifespan event handler to initialize the database."""
+    logger.info("Starting application and initializing database...")
     await init_db()
+    logger.info("Database initialized successfully.")
     yield
 
 app = FastAPI(title="Calculator Microservice", lifespan=lifespan)

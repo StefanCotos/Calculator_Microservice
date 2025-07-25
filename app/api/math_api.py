@@ -12,6 +12,9 @@ from app.schemas.math_schema import (
 from app.auth.utils import get_current_user
 from app.models.user import User
 
+from app.logging_config import setup_logger
+logger = setup_logger(__name__)
+
 router = APIRouter()
 service = MathService()
 
@@ -33,12 +36,17 @@ async def power(payload: PowRequest,
             dict: A dictionary containing the input values
                 and the calculation result.
     """
+
+    logger.info(f"Calculating power for: {payload.x} ^ {payload.y}")
+
     result = service.power(payload.x, payload.y)
     expr = f"pow({payload.x}, {payload.y})"
 
     record = RequestRecord(expression=expr, result=str(result), user=user)
     db.add(record)
     await db.commit()
+
+    logger.info(f"Power of {payload.x} ^ {payload.y} calculated: {result}")
 
     return {
         "input": {"x": payload.x, "y": payload.y},
@@ -68,12 +76,17 @@ async def fibonacci(payload: FibonacciRequest,
             Saves the expression and calculation result in the
                 database, associated with the current user.
     """
+
+    logger.info(f"Calculating Fibonacci for: {payload.n}")
+
     result = service.fibonacci(payload.n)
     expr = f"fibonacci({payload.n})"
 
     record = RequestRecord(expression=expr, result=str(result), user=user)
     db.add(record)
     await db.commit()
+
+    logger.info(f"Fibonacci of {payload.n} calculated: {result}")
 
     return {
         "input": {"n": payload.n},
@@ -104,12 +117,17 @@ async def factorial(payload: FactorialRequest,
             Persists a new RequestRecord in the database with
                 the expression, result, and user information.
     """
+
+    logger.info(f"Calculating factorial for: {payload.n}")
+
     result = service.factorial(payload.n)
     expr = f"factorial({payload.n})"
 
     record = RequestRecord(expression=expr, result=str(result), user=user)
     db.add(record)
     await db.commit()
+
+    logger.info(f"Factorial of {payload.n} calculated: {result}")
 
     return {
         "input": {"n": payload.n},

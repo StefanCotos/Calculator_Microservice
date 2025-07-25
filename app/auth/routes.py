@@ -7,12 +7,26 @@ from passlib.hash import bcrypt
 from app.db.session import get_db
 from app.models.user import User
 
+from app.logging_config import setup_logger
+logger = setup_logger(__name__)
+
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/register", response_class=HTMLResponse)
 async def register_form(request: Request):
+    """
+    Handles the HTTP request for the user registration form.
+    Args:
+        request (Request): The incoming HTTP request object.
+    Returns:
+        TemplateResponse: Renders and returns the 'register.html'
+            template with the request context.
+    """
+
+    logger.info("Rendering registration form.")
+
     return templates.TemplateResponse("register.html", {"request": request})
 
 
@@ -39,6 +53,9 @@ async def register(
         RedirectResponse: If registration is successful,
             redirects the user to the login page.
     """
+
+    logger.info(f"Attempting to register user: {username}")
+
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalar_one_or_none()
 
@@ -51,6 +68,8 @@ async def register(
     new_user = User(username=username, hashed_password=hashed_pw)
     db.add(new_user)
     await db.commit()
+
+    logger.info(f"User {username} registered successfully.")
 
     response = RedirectResponse("/login", status_code=302)
     return response
@@ -66,6 +85,8 @@ async def login_form(request: Request):
         TemplateResponse: The rendered 'login.html'
             template with the request context.
     """
+
+    logger.info("Rendering login form.")
 
     return templates.TemplateResponse("login.html", {"request": request})
 
@@ -90,6 +111,9 @@ async def login(
         RedirectResponse: If authentication succeeds,
             redirects to the home page and sets a user_id cookie.
     """
+
+    logger.info(f"Attempting to log in user: {username}")
+
     result = await db.execute(select(User).where(User.username == username))
     user = result.scalar_one_or_none()
 
@@ -100,6 +124,9 @@ async def login(
 
     response = RedirectResponse("/", status_code=302)
     response.set_cookie("user_id", str(user.id))
+
+    logger.info(f"User {username} logged in successfully.")
+
     return response
 
 
@@ -113,6 +140,11 @@ async def logout():
             URL ("/") with a 302 status code and removes the 'user_id' cookie.
     """
 
+    logger.info("Logging out user.")
+
     response = RedirectResponse("/", status_code=302)
     response.delete_cookie("user_id")
+
+    logger.info("User logged out successfully.")
+
     return response

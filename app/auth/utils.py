@@ -4,6 +4,9 @@ from sqlalchemy.future import select
 from app.db.session import get_db
 from app.models.user import User
 
+from app.logging_config import setup_logger
+logger = setup_logger(__name__)
+
 
 async def get_current_user(
     request: Request,
@@ -28,12 +31,16 @@ async def get_current_user(
     """
     user_id = request.cookies.get("user_id")
 
+    logger.debug(f"Attempting to retrieve user with ID: {user_id}")
+
     if not user_id:
         return None
 
     try:
         result = await db.execute(select(User).where(User.id == int(user_id)))
         user = result.scalar_one_or_none()
+        logger.debug(f"User retrieved: {user}")
         return user
     except Exception:
+        logger.error(f"Error retrieving user with ID: {user_id}")
         return None

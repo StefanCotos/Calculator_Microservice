@@ -10,6 +10,7 @@ class MathService:
         Raises:
             ValueError: If n is negative.
         """
+
         if n < 0:
             raise ValueError("n trebuie să fie ≥ 0")
         a, b = 0, 1

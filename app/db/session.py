@@ -1,6 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
+from app.logging_config import setup_logger
+logger = setup_logger(__name__)
+
 DATABASE_URL = "sqlite+aiosqlite:///./app.db"
 
 engine = create_async_engine(DATABASE_URL, echo=True)
@@ -21,8 +24,12 @@ async def init_db():
             SQLAlchemy during table creation.
     """
 
+    logger.info("Initializing the database...")
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    logger.info("Database initialized successfully.")
 
 
 async def get_db():
@@ -37,5 +44,9 @@ async def get_db():
             closed after the request is completed.
     """
 
+    logger.debug("Creating a new database session...")
+
     async with AsyncSessionLocal() as session:
         yield session
+
+    logger.debug("Database session closed.")
