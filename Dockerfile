@@ -16,3 +16,6 @@ EXPOSE 8000
 
 # Comanda de rulare
 CMD ["python", "run.py"]
+
+# Setează variabila de mediu pentru conexiunea Redis
+ENV REDIS_URL=redis://host.docker.internal:6379

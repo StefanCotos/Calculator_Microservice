@@ -13,7 +13,7 @@ from app.auth.utils import get_current_user
 from app.models.user import User
 from sqlalchemy import delete
 
-from app.logging_config import setup_logger
+from app.core.logging_config import setup_logger
 logger = setup_logger(__name__)
 
 router = APIRouter()

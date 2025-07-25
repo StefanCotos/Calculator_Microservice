@@ -1,6 +1,7 @@
 import logging
 import sys
 
+
 def setup_logger(name: str) -> logging.Logger:
     """
     Sets up and returns a logger with the specified name.
@@ -15,7 +16,7 @@ def setup_logger(name: str) -> logging.Logger:
         logging.Logger: The configured logger instance.
     """
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter(
         '[%(asctime)s] [%(levelname)s] %(name)s: %(message)s',

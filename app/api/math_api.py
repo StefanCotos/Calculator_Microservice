@@ -12,7 +12,7 @@ from app.schemas.math_schema import (
 from app.auth.utils import get_current_user
 from app.models.user import User
 
-from app.logging_config import setup_logger
+from app.core.logging_config import setup_logger
 logger = setup_logger(__name__)
 
 router = APIRouter()
@@ -39,14 +39,12 @@ async def power(payload: PowRequest,
 
     logger.info(f"Calculating power for: {payload.x} ^ {payload.y}")
 
-    result = service.power(payload.x, payload.y)
+    result = await service.power(payload.x, payload.y)
     expr = f"pow({payload.x}, {payload.y})"
 
     record = RequestRecord(expression=expr, result=str(result), user=user)
     db.add(record)
     await db.commit()
-
-    logger.info(f"Power of {payload.x} ^ {payload.y} calculated: {result}")
 
     return {
         "input": {"x": payload.x, "y": payload.y},
@@ -79,14 +77,12 @@ async def fibonacci(payload: FibonacciRequest,
 
     logger.info(f"Calculating Fibonacci for: {payload.n}")
 
-    result = service.fibonacci(payload.n)
+    result = await service.fibonacci(payload.n)
     expr = f"fibonacci({payload.n})"
 
     record = RequestRecord(expression=expr, result=str(result), user=user)
     db.add(record)
     await db.commit()
-
-    logger.info(f"Fibonacci of {payload.n} calculated: {result}")
 
     return {
         "input": {"n": payload.n},
@@ -120,14 +116,12 @@ async def factorial(payload: FactorialRequest,
 
     logger.info(f"Calculating factorial for: {payload.n}")
 
-    result = service.factorial(payload.n)
+    result = await service.factorial(payload.n)
     expr = f"factorial({payload.n})"
 
     record = RequestRecord(expression=expr, result=str(result), user=user)
     db.add(record)
     await db.commit()
-
-    logger.info(f"Factorial of {payload.n} calculated: {result}")
 
     return {
         "input": {"n": payload.n},

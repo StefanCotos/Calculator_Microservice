@@ -4,7 +4,7 @@ from app.api import calculator, math_api
 from app.auth import routes
 from app.db.session import init_db
 
-from app.logging_config import setup_logger
+from app.core.logging_config import setup_logger
 logger = setup_logger(__name__)
 
 

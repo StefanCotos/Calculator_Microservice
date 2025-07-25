@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from app.db.session import get_db
 from app.models.user import User
 
-from app.logging_config import setup_logger
+from app.core.logging_config import setup_logger
 logger = setup_logger(__name__)
 
 

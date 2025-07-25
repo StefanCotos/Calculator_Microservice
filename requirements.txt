@@ -10,3 +10,4 @@ flake8
 autopep8
 passlib[bcrypt]
 python-dotenv
+redis[asyncio]

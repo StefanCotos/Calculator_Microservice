@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-from app.logging_config import setup_logger
+from app.core.logging_config import setup_logger
 logger = setup_logger(__name__)
 
 DATABASE_URL = "sqlite+aiosqlite:///./app.db"
