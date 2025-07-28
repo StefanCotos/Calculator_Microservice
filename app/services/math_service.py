@@ -1,9 +1,12 @@
-from app.core.redis_cache import redis_client
+from app.core.redis_cache import redis_client as default_redis_client
 from app.core.logging_config import setup_logger
 logger = setup_logger(__name__)
 
 
 class MathService:
+    def __init__(self, redis_instance=None):
+        self.redis = redis_instance or default_redis_client
+
     async def fibonacci(self, n: int) -> int:
         """
         Calculates the n-th Fibonacci number.
@@ -17,7 +20,7 @@ class MathService:
         """
 
         key = f"fib:{n}"
-        cached = await redis_client.get(key)
+        cached = await self.redis.get(key)
         if cached:
             logger.debug(f"Cache hit for Fibonacci number at position {n}")
             return int(cached)
@@ -32,7 +35,7 @@ class MathService:
 
         logger.debug(f"Calculated Fibonacci number at position {n}: {result}")
 
-        await redis_client.set(key, result, ex=3600)
+        await self.redis.set(key, result, ex=3600)
         return result
 
     async def factorial(self, n: int) -> int:
@@ -48,7 +51,7 @@ class MathService:
         """
 
         key = f"fact:{n}"
-        cached = await redis_client.get(key)
+        cached = await self.redis.get(key)
         if cached:
             logger.debug(f"Cache hit for factorial of {n}")
             return int(cached)
@@ -62,7 +65,7 @@ class MathService:
 
         logger.debug(f"Calculated factorial of {n}: {result}")
 
-        await redis_client.set(key, result, ex=3600)
+        await self.redis.set(key, result, ex=3600)
         return result
 
     async def power(self, x: float, y: float) -> float:
@@ -76,7 +79,7 @@ class MathService:
         """
 
         key = f"pow:{x}:{y}"
-        cached = await redis_client.get(key)
+        cached = await self.redis.get(key)
         if cached:
             logger.debug(f"Cache hit for power calculation: {x} ^ {y}")
             return float(cached)
@@ -85,5 +88,5 @@ class MathService:
 
         logger.debug(f"Calculated power: {x} ^ {y} = {result}")
 
-        await redis_client.set(key, result, ex=3600)
+        await self.redis.set(key, result, ex=3600)
         return result
