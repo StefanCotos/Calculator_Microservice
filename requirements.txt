@@ -8,8 +8,10 @@ sqlalchemy[asyncio]
 aiosqlite
 flake8
 autopep8
-passlib[bcrypt]
+passlib
+bcrypt==3.2.2
 python-dotenv
 redis[asyncio]
 pytest
 pytest-asyncio
+PyJWT

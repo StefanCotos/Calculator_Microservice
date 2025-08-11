@@ -18,6 +18,11 @@ function backspace() {
     document.getElementById("expression").value = current;
 }
 
+function getAuthHeaders() {
+    const token = localStorage.getItem("jwt_token");
+    return token ? { "Authorization": "Bearer " + token } : {};
+}
+
 async function callFactorial() {
     if (!/^\d+$/.test(current)) {
         alert("Trebuie să introduci un număr întreg!");
@@ -29,9 +34,14 @@ async function callFactorial() {
 
     const response = await fetch('/api/factorial', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ n: n })
     });
+
+    if (response.status === 401) {
+        alert("Trebuie să fii autentificat!");
+        return;
+    }
 
     const data = await response.json();
     current = data.result.toString();
@@ -52,9 +62,14 @@ async function callFibonacci() {
 
     const response = await fetch('/api/fibonacci', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ n: n })
     });
+
+    if (response.status === 401) {
+        alert("Trebuie să fii autentificat!");
+        return;
+    }
 
     const data = await response.json();
     current = data.result.toString();
@@ -72,9 +87,14 @@ async function callPow() {
 
     const response = await fetch('/api/pow', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify({ x: base, y: exponent })
     });
+
+    if (response.status === 401) {
+        alert("Trebuie să fii autentificat!");
+        return;
+    }
 
     const data = await response.json();
     current = data.result.toString();
@@ -85,7 +105,9 @@ async function callPow() {
 }
 
 async function loadHistory() {
-    const response = await fetch("/history");
+    const response = await fetch("/history", {
+        headers: { ...getAuthHeaders() }
+    });
     const data = await response.json();
 
     const list = document.getElementById("history-list");
@@ -98,15 +120,99 @@ async function loadHistory() {
     });
 }
 
-
 async function deleteHistory() {
     const confirmare = confirm("Sigur vrei să ștergi tot istoricul?");
     if (!confirmare) return;
 
-    await fetch("/history", { method: "DELETE" });
+    await fetch("/history", { method: "DELETE", headers: { ...getAuthHeaders() } });
     loadHistory();
 }
 
+function setupLogout() {
+    document.querySelectorAll('a[href="/logout"]').forEach(function (link) {
+        link.addEventListener("click", function (e) {
+            e.preventDefault();
+            localStorage.removeItem("jwt_token");
+            window.location.href = "/";
+        });
+    });
+}
 
-document.addEventListener("DOMContentLoaded", loadHistory);
+async function showUserBar() {
+    const token = localStorage.getItem("jwt_token");
+    const authBar = document.querySelector(".auth-bar");
+    if (!authBar) return;
+    if (!token) {
+        authBar.innerHTML = `<a href="/login" class="button" type="button">Login</a>
+                             <a href="/register" class="button" type="button">Înregistrare</a>`;
+        setupLogout();
+        return;
+    }
+    const response = await fetch("/me", { headers: { "Authorization": "Bearer " + token } });
+    if (response.ok) {
+        const data = await response.json();
+        authBar.innerHTML = `Salut, ${data.username} <a href="/logout" class="button" type="button">Logout</a>`;
+    } else {
+        authBar.innerHTML = `<a href="/login" class="button" type="button">Login</a>
+                             <a href="/register" class="button" type="button">Înregistrare</a>`;
+    }
+    setupLogout();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    loadHistory();
+    showUserBar();
+
+    const calcForm = document.getElementById("calc-form");
+    if (calcForm) {
+        calcForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const expression = document.getElementById("expression").value;
+
+            const response = await fetch("/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    ...getAuthHeaders()
+                },
+                body: "expression=" + encodeURIComponent(expression)
+            });
+
+            const html = await response.text();
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const newScreen = doc.getElementById("screen");
+            const result = newScreen ? newScreen.innerText : "";
+
+            document.getElementById("screen").innerText = result;
+
+            loadHistory();
+            showUserBar();
+        });
+    }
+
+    const exportBtn = document.getElementById("export-btn");
+    if (exportBtn) {
+        exportBtn.addEventListener("click", async function () {
+            const response = await fetch("/history/export", {
+                headers: { ...getAuthHeaders() }
+            });
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "history.csv";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            } else {
+                alert("Nu s-a putut descărca istoricul.");
+            }
+        });
+    }
+});
 

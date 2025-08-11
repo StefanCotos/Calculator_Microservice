@@ -1,13 +1,17 @@
 import pytest
 from app.services.math_service import MathService
 
+
 class DummyRedis:
     def __init__(self):
         self.store = {}
+
     async def get(self, key):
         return self.store.get(key)
+
     async def set(self, key, value, ex=None):
         self.store[key] = value
+
 
 @pytest.mark.asyncio
 async def test_factorial():
@@ -18,6 +22,7 @@ async def test_factorial():
     with pytest.raises(ValueError):
         await service.factorial(-1)
 
+
 @pytest.mark.asyncio
 async def test_fibonacci():
     service = MathService(redis_instance=DummyRedis())
@@ -26,6 +31,7 @@ async def test_fibonacci():
     assert await service.fibonacci(5) == 5
     with pytest.raises(ValueError):
         await service.fibonacci(-1)
+
 
 @pytest.mark.asyncio
 async def test_pow():

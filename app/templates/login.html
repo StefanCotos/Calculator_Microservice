@@ -11,18 +11,45 @@
 <body>
     <div class="auth-container">
         <h2>Login</h2>
-        <form method="post">
+        <form id="login-form" method="post">
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Parolă" required>
             <button type="submit">Autentificare</button>
         </form>
-        {% if error %}
-        <p style="color: red;">{{ error }}</p>
-        {% endif %}
+        <p id="error-msg" style="color: red; display: none;"></p>
         <p>
             Nu ai cont? <a href="/register">Înregistrează-te</a>
         </p>
     </div>
+    <script>
+        document.getElementById("login-form").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const form = e.target;
+            const username = form.username.value;
+            const password = form.password.value;
+
+            const response = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.access_token) {
+                    localStorage.setItem("jwt_token", data.access_token);
+                    window.location.href = "/";
+                } else {
+                    document.getElementById("error-msg").innerText = "Date invalide.";
+                    document.getElementById("error-msg").style.display = "block";
+                }
+            } else {
+                const data = await response.json();
+                document.getElementById("error-msg").innerText = data.error || "Date invalide.";
+                document.getElementById("error-msg").style.display = "block";
+            }
+        });
+    </script>
 </body>
 
 </html>

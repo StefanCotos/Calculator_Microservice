@@ -9,8 +9,8 @@ from app.schemas.math_schema import (
     FibonacciRequest,
     MathResponse
 )
-from app.auth.utils import get_current_user
 from app.models.user import User
+from app.auth.utils import get_current_user_jwt
 
 from app.core.logging_config import setup_logger
 logger = setup_logger(__name__)
@@ -22,7 +22,7 @@ service = MathService()
 @router.post("/pow", response_model=MathResponse)
 async def power(payload: PowRequest,
                 db: AsyncSession = Depends(get_db),
-                user: User = Depends(get_current_user)):
+                user: User = Depends(get_current_user_jwt)):
     """
         Calculates the power of a number and saves the
             expression and result in the database.
@@ -56,7 +56,7 @@ async def power(payload: PowRequest,
 async def fibonacci(payload: FibonacciRequest,
 
                     db: AsyncSession = Depends(get_db),
-                    user: User = Depends(get_current_user)):
+                    user: User = Depends(get_current_user_jwt)):
     """
         Calculates the n-th term in the Fibonacci sequence
             based on the value received in the payload.
@@ -94,7 +94,7 @@ async def fibonacci(payload: FibonacciRequest,
 async def factorial(payload: FactorialRequest,
 
                     db: AsyncSession = Depends(get_db),
-                    user: User = Depends(get_current_user)):
+                    user: User = Depends(get_current_user_jwt)):
     """
         Calculates the factorial of a given number and records
             the request in the database.

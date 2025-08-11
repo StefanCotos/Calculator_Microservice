@@ -9,7 +9,7 @@ from sqlalchemy import select
 from fastapi.responses import StreamingResponse
 import csv
 import io
-from app.auth.utils import get_current_user
+from app.auth.utils import get_optional_user_jwt
 from app.models.user import User
 from sqlalchemy import delete
 
@@ -21,22 +21,18 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/", response_class=HTMLResponse)
-async def calculator_page(request: Request, user: User = Depends(get_current_user)):
+async def calculator_page(request: Request):
     """
     Displays the main calculator page.
     Args:
         request (Request): The HTTP request object
             received from the client.
-        user (User, optional): The authenticated user,
-            obtained via the get_current_user dependency.
     Returns:
         TemplateResponse: The response containing the "index.html"
-            HTML page and the context with the request and user.
+            HTML page and the context with the request.
     """
 
-    logger.info(f"Rendering calculator page for user: {getattr(user, 'username', 'anonim')}")
-
-    return templates.TemplateResponse("index.html", {"request": request, "user": user})
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 @router.post("/", response_class=HTMLResponse)
@@ -45,7 +41,7 @@ async def calculator_eval(
     request: Request,
     expression: str = Form(...),
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user)
+    user: User = Depends(get_optional_user_jwt)
 ):
     """
     Evaluates a mathematical expression received from the
@@ -58,14 +54,7 @@ async def calculator_eval(
         user (User): The currently authenticated user.
     Returns:
         TemplateResponse: The HTML response containing the
-            evaluation result and user information.
-    Notes:
-        - The expression is evaluated in a restricted context
-            to prevent execution of dangerous code.
-        - In case of evaluation error, the result will be
-            "Eroare de calcul" (Calculation error).
-        - Each request is recorded in the database along
-            with the result and associated user.
+            evaluation result.
     """
 
     logger.info(f"Evaluating expression: '{expression}' for user: {getattr(user, 'username', 'anonim')}")
@@ -85,7 +74,6 @@ async def calculator_eval(
     return templates.TemplateResponse("index.html", {
         "request": request,
         "result": result,
-        "user": user
     })
 
 
@@ -93,7 +81,7 @@ async def calculator_eval(
 async def get_history(
 
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user)
+    user: User = Depends(get_optional_user_jwt)
 ):
     """
     Retrieves the last 10 operations performed
@@ -132,7 +120,7 @@ async def get_history(
 async def delete_history(
 
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user)
+    user: User = Depends(get_optional_user_jwt)
 ):
     """
     Deletes the request history for the authenticated user.
@@ -168,7 +156,7 @@ async def delete_history(
 async def export_history(
 
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user)
+    user: User = Depends(get_optional_user_jwt)
 ):
     """
     Exports the calculation history performed by
@@ -182,9 +170,6 @@ async def export_history(
         StreamingResponse: An HTTP response that streams
             the CSV file containing the expressions, results, and
                 timestamps of the calculations performed by the current user.
-    Note:
-        If the user is not authenticated, only records
-            without user association will be exported.
     """
 
     logger.info(f"Exporting history for user: {getattr(user, 'username', 'anonim')}")

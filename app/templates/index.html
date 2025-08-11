@@ -14,19 +14,9 @@
 
         <div class="wrapper">
 
-            <!-- Calculator -->
             <div class="calculator">
 
-                <div class="auth-bar">
-                    {% if user %}
-                    <span>Salut, {{ user.username }}
-                        <a href="/logout" class="button" type="button">Logout</a>
-                    </span>
-                    {% else %}
-                    <a href="/login" class="button" type="button">Login</a>
-                    <a href="/register" class="button" type="button">Înregistrare</a>
-                    {% endif %}
-                </div>
+                <div class="auth-bar"></div>
 
                 <h2 class="screen" id="screen">{{ result or "" }}</h2>
                 <form method="post" id="calc-form">
@@ -69,15 +59,12 @@
                 </form>
             </div>
 
-            <!-- Istoric -->
             <div class="history-box">
                 <div class="history-header">
                     <h3>Istoric</h3>
                     <div class="history-actions">
                         <button onclick="deleteHistory()">🧹</button>
-                        <a href="/history/export" download>
-                            <button>⬇️</button>
-                        </a>
+                        <button id="export-btn">⬇️</button>
                     </div>
                 </div>
                 <ul id="history-list"></ul>
