@@ -16,16 +16,16 @@ async def get_current_user_jwt(
     db: AsyncSession = Depends(get_db)
 ) -> User:
     if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token lipsă")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing token")
     token = authorization.split(" ")[1]
     payload = decode_access_token(token)
     if not payload or "sub" not in payload:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invalid")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     user_id = int(payload["sub"])
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Utilizator inexistent")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User does not exist")
     return user
 
 

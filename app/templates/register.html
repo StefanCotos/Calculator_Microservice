@@ -4,21 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Înregistrare</title>
+    <title>Register</title>
     <link rel="stylesheet" href="/static/auth.css">
 </head>
 
 <body>
     <div class="auth-container">
-        <h2>Înregistrare</h2>
+        <h2>Register</h2>
         <form id="register-form" method="post">
             <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Parolă" required>
-            <button type="submit">Creează cont</button>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Create account</button>
         </form>
         <p id="error-msg" style="color: red; display: none;"></p>
         <p>
-            Ai deja cont? <a href="/login">Autentifică-te</a>
+            Already have an account? <a href="/login">Login</a>
         </p>
     </div>
     <script>
@@ -38,7 +38,7 @@
                 window.location.href = "/login";
             } else {
                 const data = await response.json();
-                document.getElementById("error-msg").innerText = data.error || "Eroare la înregistrare!";
+                document.getElementById("error-msg").innerText = data.error || "Registration error!";
                 document.getElementById("error-msg").style.display = "block";
             }
         });

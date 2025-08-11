@@ -1,21 +1,21 @@
-# Imagine de bază
+# Base image
 FROM python:3.11-slim
 
-# Setează directorul de lucru
+# Set working directory
 WORKDIR /app
 
-# Copiază fișierele
+# Copy files
 COPY . .
 
-# Instalează dependențele
+# Install dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Expune portul
+# Expose port
 EXPOSE 8000
 
-# Comanda de rulare
+# Run command
 CMD ["python", "run.py"]
 
-# Setează variabila de mediu pentru conexiunea Redis
+# Set environment variable for Redis connection
 ENV REDIS_URL=redis://redis-service:6379

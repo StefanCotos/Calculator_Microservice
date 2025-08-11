@@ -27,7 +27,7 @@ class MathService:
 
         if n < 0:
             logger.error("Fibonacci calculation failed: n must be >= 0")
-            raise ValueError("n trebuie să fie ≥ 0")
+            raise ValueError("n must be ≥ 0")
         if n in (0, 1):
             result = n
         else:
@@ -58,7 +58,7 @@ class MathService:
 
         if n < 0:
             logger.error("Factorial calculation failed: n must be >= 0")
-            raise ValueError("n trebuie să fie ≥ 0")
+            raise ValueError("n must be ≥ 0")
         result = 1
         for i in range(2, n + 1):
             result *= i

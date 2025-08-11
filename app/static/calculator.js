@@ -25,12 +25,12 @@ function getAuthHeaders() {
 
 async function callFactorial() {
     if (!/^\d+$/.test(current)) {
-        alert("Trebuie să introduci un număr întreg!");
+        alert("You must enter an integer!");
         return;
     }
 
     const n = parseInt(current);
-    if (isNaN(n)) return alert("Introduceți un număr valid pentru factorial.");
+    if (isNaN(n)) return alert("Please enter a valid number for factorial.");
 
     const response = await fetch('/api/factorial', {
         method: 'POST',
@@ -39,7 +39,7 @@ async function callFactorial() {
     });
 
     if (response.status === 401) {
-        alert("Trebuie să fii autentificat!");
+        alert("You must be authenticated!");
         return;
     }
 
@@ -53,12 +53,12 @@ async function callFactorial() {
 
 async function callFibonacci() {
     if (!/^\d+$/.test(current)) {
-        alert("Trebuie să introduci un număr întreg!");
+        alert("You must enter an integer!");
         return;
     }
 
     const n = parseInt(current);
-    if (isNaN(n)) return alert("Introduceți un număr valid pentru fibonacci.");
+    if (isNaN(n)) return alert("Please enter a valid number for fibonacci.");
 
     const response = await fetch('/api/fibonacci', {
         method: 'POST',
@@ -67,7 +67,7 @@ async function callFibonacci() {
     });
 
     if (response.status === 401) {
-        alert("Trebuie să fii autentificat!");
+        alert("You must be authenticated!");
         return;
     }
 
@@ -82,7 +82,7 @@ async function callFibonacci() {
 async function callPow() {
     const [base, exponent] = current.split("^").map(Number);
     if (isNaN(base) || isNaN(exponent)) {
-        return alert("Introduceți expresia ca 'x^y' (ex: 2^3)");
+        return alert("Enter the expression as 'x^y' (e.g., 2^3)");
     }
 
     const response = await fetch('/api/pow', {
@@ -92,7 +92,7 @@ async function callPow() {
     });
 
     if (response.status === 401) {
-        alert("Trebuie să fii autentificat!");
+        alert("You must be authenticated!");
         return;
     }
 
@@ -121,7 +121,7 @@ async function loadHistory() {
 }
 
 async function deleteHistory() {
-    const confirmare = confirm("Sigur vrei să ștergi tot istoricul?");
+    const confirmare = confirm("Are you sure you want to delete all history?");
     if (!confirmare) return;
 
     await fetch("/history", { method: "DELETE", headers: { ...getAuthHeaders() } });
@@ -144,17 +144,17 @@ async function showUserBar() {
     if (!authBar) return;
     if (!token) {
         authBar.innerHTML = `<a href="/login" class="button" type="button">Login</a>
-                             <a href="/register" class="button" type="button">Înregistrare</a>`;
+                             <a href="/register" class="button" type="button">Register</a>`;
         setupLogout();
         return;
     }
     const response = await fetch("/me", { headers: { "Authorization": "Bearer " + token } });
     if (response.ok) {
         const data = await response.json();
-        authBar.innerHTML = `Salut, ${data.username} <a href="/logout" class="button" type="button">Logout</a>`;
+        authBar.innerHTML = `Hello, ${data.username} <a href="/logout" class="button" type="button">Logout</a>`;
     } else {
         authBar.innerHTML = `<a href="/login" class="button" type="button">Login</a>
-                             <a href="/register" class="button" type="button">Înregistrare</a>`;
+                             <a href="/register" class="button" type="button">Register</a>`;
     }
     setupLogout();
 }
@@ -210,7 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 a.remove();
                 window.URL.revokeObjectURL(url);
             } else {
-                alert("Nu s-a putut descărca istoricul.");
+                alert("Could not download history.");
             }
         });
     }

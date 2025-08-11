@@ -45,7 +45,7 @@ async def register(
     user = result.scalar_one_or_none()
 
     if user:
-        return JSONResponse({"error": "Username deja folosit."}, status_code=409)
+        return JSONResponse({"error": "Username already taken."}, status_code=409)
 
     hashed_pw = bcrypt.hash(password)
     new_user = User(username=username, hashed_password=hashed_pw)
@@ -86,7 +86,7 @@ async def login(
     user = result.scalar_one_or_none()
 
     if not user or not bcrypt.verify(password, user.hashed_password):
-        return JSONResponse({"error": "Date invalide."}, status_code=401)
+        return JSONResponse({"error": "Invalid credentials."}, status_code=401)
 
     access_token = create_access_token({"sub": str(user.id)})
     response = JSONResponse({"access_token": access_token, "token_type": "bearer"})

@@ -63,7 +63,7 @@ async def calculator_eval(
         result = str(eval(expression, {"__builtins__": None}, {
                      "math": __import__('math')}))
     except Exception:
-        result = "Eroare de calcul"
+        result = "Calculation error"
 
     record = RequestRecord(expression=expression, result=result, user=user)
     db.add(record)
@@ -149,7 +149,7 @@ async def delete_history(
 
     logger.info(f"History deleted for user: {getattr(user, 'username', 'anonim')}")
 
-    return {"message": "Istoric șters."}
+    return {"message": "History deleted."}
 
 
 @router.get("/history/export")
