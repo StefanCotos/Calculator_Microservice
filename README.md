@@ -38,7 +38,7 @@ Acest proiect este un microserviciu de calculator matematic, dezvoltat cu **Fast
 - ✔️ Caching Redis pentru operații costisitoare.
 - ✔️ Logging centralizat (configurabil, production ready).
 - ✔️ Deploy cloud ready: Docker/K8s/Cloud.
-- ✔️ Persistență în Redis Streams: fiecare request matematic este publicat și într-un stream Redis (pentru bonus/monitorizare/integrare cu microservicii).
+- ✔️ Persistență în Redis Streams: fiecare request matematic este publicat și într-un stream Redis.
 
 ---
 
@@ -96,7 +96,6 @@ docker run -d -p 8000:8000 calculator-fastapi
 ## Demo Online
 
 Aplicația live: [http://34.56.34.63/](http://34.56.34.63/)  
-*(actualizează cu URL-ul tău real dacă e nevoie)*
 
 ---
 
