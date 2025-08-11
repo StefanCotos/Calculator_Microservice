@@ -7,6 +7,15 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
+    """
+    Generates a JSON Web Token (JWT) access token with an expiration time.
+    Args:
+        data (dict): The data to include in the token payload.
+        expires_delta (timedelta, optional): The time duration until the token expires.
+            If not provided, a default expiration time is used.
+    Returns:
+        str: The encoded JWT as a string.
+    """
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
@@ -15,6 +24,13 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 
 
 def decode_access_token(token: str):
+    """
+    Decodes a JWT access token and returns its payload.
+    Args:
+        token (str): The JWT access token to decode.
+    Returns:
+        dict or None: The decoded payload if the token is valid, otherwise None.
+    """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload

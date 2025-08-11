@@ -1,3 +1,4 @@
+from app.core.message_stream import publish_request_event
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
@@ -10,10 +11,12 @@ from app.schemas.math_schema import (
     MathResponse
 )
 from app.models.user import User
+from datetime import datetime
 from app.auth.utils import get_current_user_jwt
 
 from app.core.logging_config import setup_logger
 logger = setup_logger(__name__)
+
 
 router = APIRouter()
 service = MathService()
@@ -46,6 +49,14 @@ async def power(payload: PowRequest,
     db.add(record)
     await db.commit()
 
+    await publish_request_event({
+        "user_id": user.id if user else None,
+        "username": user.username if user else "anonim",
+        "expression": expr,
+        "result": result,
+        "timestamp": datetime.utcnow().isoformat()
+    })
+
     return {
         "input": {"x": payload.x, "y": payload.y},
         "result": result
@@ -70,9 +81,6 @@ async def fibonacci(payload: FibonacciRequest,
         Returns:
             dict: A dictionary containing the input
                 value and the calculation result.
-        Side effects:
-            Saves the expression and calculation result in the
-                database, associated with the current user.
     """
 
     logger.info(f"Calculating Fibonacci for: {payload.n}")
@@ -83,6 +91,14 @@ async def fibonacci(payload: FibonacciRequest,
     record = RequestRecord(expression=expr, result=str(result), user=user)
     db.add(record)
     await db.commit()
+
+    await publish_request_event({
+        "user_id": user.id if user else None,
+        "username": user.username if user else "anonim",
+        "expression": expr,
+        "result": result,
+        "timestamp": datetime.utcnow().isoformat()
+    })
 
     return {
         "input": {"n": payload.n},
@@ -109,9 +125,6 @@ async def factorial(payload: FactorialRequest,
         Raises:
             Any exceptions raised by the service.factorial
                 function or database operations.
-        Side Effects:
-            Persists a new RequestRecord in the database with
-                the expression, result, and user information.
     """
 
     logger.info(f"Calculating factorial for: {payload.n}")
@@ -122,6 +135,14 @@ async def factorial(payload: FactorialRequest,
     record = RequestRecord(expression=expr, result=str(result), user=user)
     db.add(record)
     await db.commit()
+
+    await publish_request_event({
+        "user_id": user.id if user else None,
+        "username": user.username if user else "anonim",
+        "expression": expr,
+        "result": result,
+        "timestamp": datetime.utcnow().isoformat()
+    })
 
     return {
         "input": {"n": payload.n},

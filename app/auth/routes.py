@@ -39,6 +39,16 @@ async def register(
     password: str = Form(...),
     db: AsyncSession = Depends(get_db)
 ):
+    """
+    Handles the user registration process.
+    Args:
+        username (str): The desired username for the new account.
+        password (str): The desired password for the new account.
+        db (AsyncSession, optional): The database session for user registration.
+    Returns:
+        JSONResponse: A response indicating the success or failure of the registration.
+    """
+
     logger.info(f"Attempting to register user: {username}")
 
     result = await db.execute(select(User).where(User.username == username))
@@ -80,6 +90,17 @@ async def login(
     password: str = Form(...),
     db: AsyncSession = Depends(get_db)
 ):
+    """
+    Handles the user login process.
+    Args:
+        request (Request): The incoming HTTP request object.
+        username (str): The username of the user attempting to log in.
+        password (str): The password of the user attempting to log in.
+        db (AsyncSession, optional): The database session for user authentication.
+    Returns:
+        JSONResponse: A response indicating the success or failure of the login.
+    """
+
     logger.info(f"Attempting to log in user: {username}")
 
     result = await db.execute(select(User).where(User.username == username))
@@ -95,6 +116,13 @@ async def login(
 
 @router.get("/me")
 async def get_me(user: User = Depends(get_current_user_jwt)):
+    """
+    Retrieves the current user's information.
+    Args:
+        user (User, optional): The current user object, obtained from the JWT.
+    Returns:
+        dict: A dictionary containing the user's information.
+    """
     return {
         "id": user.id,
         "username": user.username,

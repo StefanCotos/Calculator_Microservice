@@ -1,3 +1,4 @@
+from app.core.message_stream import publish_request_event
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -12,9 +13,11 @@ import io
 from app.auth.utils import get_optional_user_jwt
 from app.models.user import User
 from sqlalchemy import delete
+from datetime import datetime
 
 from app.core.logging_config import setup_logger
 logger = setup_logger(__name__)
+
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -70,6 +73,14 @@ async def calculator_eval(
     await db.commit()
 
     logger.info(f"Expression '{expression}' evaluated with result: '{result}' for user: {getattr(user, 'username', 'anonim')}")
+
+    await publish_request_event({
+        "user_id": user.id if user else None,
+        "username": user.username if user else "anonim",
+        "expression": expression,
+        "result": result,
+        "timestamp": datetime.utcnow().isoformat()
+    })
 
     return templates.TemplateResponse("index.html", {
         "request": request,
